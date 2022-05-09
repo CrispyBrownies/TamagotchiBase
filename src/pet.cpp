@@ -26,6 +26,50 @@ class Pet {
 		int happinessRate;
 		int sicknessRate;
 
+		void updatePetStats() {
+
+			// Update the pets stats by change rate
+			age += ageRate;
+			hunger -= hungerRate;
+			happiness -= happinessRate;
+			sickness += sicknessRate;
+			health = (int)(0.7f * (100-sickness) + 0.1f * happiness + 0.2f * hunger); // 70% sickness, 10% happiness, 20% hunger
+
+			capValue(&age, 100);
+			capValue(&hunger, 100);
+			capValue(&happiness, 100);
+			capValue(&sickness, 100);
+			capValue(&health, 100);
+
+			checkSick();
+		}
+
+		// Caps the value to between 0 and max
+		void capValue(int* val, int max) {
+			if (*val > max) {
+				*val = max;
+			}
+			if (*val < 0) {
+				*val = 0;
+			}
+		}
+
+		// Checks if the pet is sick, the pet only gets sick at 100 and becomes healthy at 0
+		void checkSick() {
+			if (sickness == 100) {
+				sick = true;
+			}
+			if (sickness == 0) {
+				sick = false;
+			}
+		}
+
+	public:
+
+		void process() {
+			updatePetStats();
+		}
+
 		// Constructor for new pets
 		Pet(int id, string name) {
 			this->id = id;
@@ -61,30 +105,23 @@ class Pet {
 			sicknessRate = any_cast<int>(props["sicknessRate"]);
 		}
 
-		void updatePetStats() {
-
-			// Update the pets stats by change rate
-			age += ageRate;
-			hunger -= hungerRate;
-			happiness -= happinessRate;
-			sickness += sicknessRate;
-			health = (int)(0.7f * (100-sickness) + 0.1f * happiness + 0.2f * (100-hunger)); // 70% sickness, 10% happiness, 20% hunger
-
-			capValue(&age, 100);
-			capValue(&hunger, 100);
-			capValue(&happiness, 100);
-			capValue(&sickness, 100);
-			capValue(&health, 100);
-
-			checkSick();
-
+		// For debug and testing purposes
+		void printPetStats() {
+			cout << "Pet Name: " << name << endl;
+			cout << "Health: " << health << endl;
+			cout << "Hunger: " << hunger << endl;
+			cout << "Happiness: " << happiness << endl;
+			cout << "Sickness: " << sickness << endl;
+			cout << "Sick: " << sick << endl;
+			cout << "-------------------------------" << endl;
 		}
 
+		// Packages pet stats into map object
 		map<string, any> packagePet() {
 			map<string, any> props;
 			props = {
 				{"id", id},
-				{"name", name},
+				{"name", string(name)},
 				{"age", age},
 				{"hunger", hunger},
 				{"health", health},
@@ -99,41 +136,8 @@ class Pet {
 			return props;
 		}
 
-		// Caps the value to between 0 and max
-		void capValue(int* val, int max) {
-			if (*val > max) {
-				*val = max;
-			}
-			if (*val < 0) {
-				*val = 0;
-			}
-		}
-
-		// Checks if the pet is sick, the pet only gets sick at 100 and becomes healthy at 0
-		void checkSick() {
-			if (sickness == 100) {
-				sick = true;
-			}
-			if (sickness == 0) {
-				sick = false;
-			}
-		}
-
-		
-
-	public:
-
-		// For debug and testing purposes
-		void printPetStats() {
-			cout << "Pet Name: " << name << endl;
-			cout << "Health: " << health << endl;
-			cout << "Hunger: " << hunger << endl;
-			cout << "Happiness: " << happiness << endl;
-			cout << "Sickness: " << sickness << endl;
-			cout << "Sick: " << sick << endl;
-		}
-
 		// Getters
+		// For debug use, would not be used in operation 
 		int getAge() {
 			return age;
 		}
@@ -164,6 +168,7 @@ class Pet {
 
 		// Setters
 		// These return object ptrs so they can be called in succession
+		// For debug use, would not be used in operation
 		Pet* setAge(int age) {
 			this->age = age;
 			return this;
